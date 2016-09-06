@@ -311,8 +311,8 @@ let init () =
                /my/special/path/to/ocamlc" will make ocamlfind choke),
                but the user will see the error and hopefully fix the
                flags. *)
-            ocamlfind & (Sh user_command);
-          | _ -> ocamlfind & A command_name
+            ocamlfind @@ Sh user_command;
+          | _ -> ocamlfind @@ A command_name
     in
     (* Note that plugins can still modify these variables After_options.
        This design decision can easily be changed. *)

@@ -354,12 +354,16 @@ module type MISC = sig
   val ( !* ) : 'a Lazy.t -> 'a
 
   (** The right associative application.
-      Useful when writing to much parentheses:
+      Useful when writing too much parentheses:
       << f (g x ... t) >> becomes << f& g x ... t >>
       << f (g (h x)) >>   becomes << f& g& h x >> *)
   val ( & ) : ('a -> 'b) -> 'a -> 'b
 
-  (** The reversed application combinator.
+  (** The modern alternative for right associative application
+      (as of OCaml 4.01) *)
+  val ( @@ ) : ('a -> 'b) -> 'a -> 'b
+
+  (** The reverse application combinator.
       Useful to describe some operations chaining.
       << f x (g y (h z)) >> becomes << z |> h |> g y |> f x >> *)
   val ( |> ) : 'a -> ('a -> 'b) -> 'b

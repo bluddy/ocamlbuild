@@ -374,7 +374,7 @@ let digest =
 let all_deps_of_tags = ref []
 
 let cons deps acc =
-  List.rev&
+  List.rev @@
     List.fold_left begin fun acc dep ->
       if List.mem dep acc then acc else dep :: acc
     end acc deps

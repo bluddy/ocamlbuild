@@ -86,13 +86,13 @@ let rec normalize_list = function
 let normalize x =
   if Glob.eval not_normal_form_re x then
     let root, paths = split x in
-    join root (normalize_list paths)
+    join root @@ normalize_list paths
   else x
 
 (* [is_prefix x y] is [x] a pathname prefix of [y] *)
 let is_prefix x y =
   let lx = String.length x and ly = String.length y in
-  if lx = ly then x = (String.before y lx)
+  if lx = ly then x = String.before y lx
   else if lx < ly then x = (String.before y lx) && List.mem y.[lx] dir_seps
   else false
 

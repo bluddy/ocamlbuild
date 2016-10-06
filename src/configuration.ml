@@ -41,7 +41,7 @@ let parse_string ?source s =
     | Some source -> source
     | None -> Const.Source.configuration
   in
-  parse_lexbuf source (lexbuf_of_string s)
+  parse_lexbuf source @@ lexbuf_of_string s
 
 let parse_file ?dir file =
   with_input_file file begin fun ic ->
@@ -71,17 +71,17 @@ let tags_of_filename s =
     res
 
 let global_tags () = tags_of_filename ""
-let has_tag tag = Tags.mem tag (global_tags ())
+let has_tag tag = Tags.mem tag @@ global_tags ()
 
 let tag_file file tags =
-  if tags <> [] then parse_string (Printf.sprintf "%S: %s" file (String.concat ", " tags));;
+  if tags <> [] then parse_string @@ Printf.sprintf "%S: %s" file (String.concat ", " tags);;
 
 let tag_any tags =
-  if tags <> [] then parse_string (Printf.sprintf "true: %s" (String.concat ", " tags));;
+  if tags <> [] then parse_string @@ Printf.sprintf "true: %s" (String.concat ", " tags);;
 
 let check_tags_usage useful_tags =
   let check_tag (tag, loc) =
-    if not (Tags.mem tag useful_tags) then
+    if not @@ Tags.mem tag useful_tags then
 
       Log.eprintf "%aWarning: the tag %S is not used in any flag or dependency \
                    declaration, so it will have no effect; it may be a typo. \

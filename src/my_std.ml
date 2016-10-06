@@ -442,7 +442,7 @@ let lexbuf_of_string ?name content =
     | Some name -> name
     | None ->
       (* 40: hope the location will fit one line of 80 chars *)
-      if String.length content < 40 && not (String.contains content '\n') then
+      if String.length content < 40 && not @@ String.contains content '\n' then
         String.escaped content
       else ""
   in

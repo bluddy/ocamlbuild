@@ -65,6 +65,7 @@ let builtin_useful_tags =
   ]
 ;;
 
+(* main procedure *)
 let proceed () =
   Hooks.call_hook Hooks.Before_options;
   Options.init ();
@@ -82,8 +83,9 @@ let proceed () =
        no-ops anyway, before any plugin has registered hooks. *)
     Plugin.we_need_a_plugin () && not !Options.just_plugin in
 
-  let target_dirs = List.union [] (List.map Pathname.dirname !Options.targets) in
+  let target_dirs = List.union [] @@ List.map Pathname.dirname !Options.targets in
 
+  (* create default rules *)
   Configuration.parse_string ~source:Const.Source.builtin
     "<**/*.ml> or <**/*.mli> or <**/*.mlpack> or <**/*.ml.depends>: ocaml\n\
      <**/*.byte>: ocaml, byte, program\n\
@@ -149,7 +151,7 @@ let proceed () =
 
         ((* beware: !Options.build_dir is an absolute directory *)
          Pathname.pwd/name <> !Options.build_dir
-         && not (List.mem name !Options.exclude_dirs))
+         && not @@ List.mem name !Options.exclude_dirs)
         && begin
           not (path_name <> Filename.current_dir_name && Pathname.is_directory path_name)
           || begin
@@ -168,10 +170,10 @@ let proceed () =
   in
   Hooks.call_hook Hooks.Before_hygiene;
   let hygiene_entry =
-    Slurp.map begin fun path name () ->
-      let tags = tags_of_pathname (path/name) in
-      not (Tags.mem "not_hygienic" tags) && not (Tags.mem "precious" tags)
-    end entry in
+    Slurp.map (fun path name () ->
+      let tags = tags_of_pathname @@ path/name in
+      not @@ Tags.mem "not_hygienic" tags && not @@ Tags.mem "precious" tags)
+    entry in
   Slurp.force hygiene_entry;
   if !Options.hygiene && not first_run_for_plugin then
     Fda.inspect hygiene_entry;

@@ -146,18 +146,22 @@ let add_to rxs x =
   let xs = Lexers.comma_or_blank_sep_strings
     Const.Source.command_line (Lexing.from_string x) in
   rxs := xs :: !rxs
+
 let add_to' rxs x =
   if x <> dummy then
     rxs := [x] :: !rxs
   else
     ()
+
 let set_cmd rcmd = String (fun s -> rcmd := Sh s)
+
 let set_build_dir s =
   make_links := false;
   if Filename.is_relative s then
     build_dir := Filename.concat (Sys.getcwd ()) s
   else
     build_dir := s
+
 let spec = ref (
     let print_version () =
       Printf.printf "ocamlbuild %s\n%!" Ocamlbuild_config.version; raise Exit_OK
@@ -252,8 +256,7 @@ let spec = ref (
    " Stop argument processing, remaining arguments are given to the user program";
   ])
 
-let add x =
-  spec := !spec @ [x]
+let add x = spec @:= [x]
 
 let targets = ref []
 let ocaml_libs = ref []
@@ -284,19 +287,19 @@ let init () =
   let () =
     let log = !log_file_internal in
     if log = "" then Log.init None
-    else if not (Filename.is_implicit log) then
-      failwith
-        (sprintf "Bad log file name: the file name must be implicit (not %S)" log)
+    else if not @@ Filename.is_implicit log then
+      failwith @@
+        sprintf "Bad log file name: the file name must be implicit (not %S)" log
     else
       let log = filename_concat !build_dir log in
-      Shell.mkdir_p (Filename.dirname log);
+      Shell.mkdir_p @@ Filename.dirname log;
       Shell.rm_f log;
       let log = if !Log.level > 0 then Some log else None in
       Log.init log
   in
 
   if !use_ocamlfind then begin
-    begin try ignore(Command.search_in_path "ocamlfind")
+    begin try ignore @@ Command.search_in_path "ocamlfind"
     with Not_found ->
       failwith "ocamlfind not found on path, but -no-ocamlfind not used"
     end;
@@ -326,7 +329,7 @@ let init () =
     ]
   end;
 
-  let reorder x y = x := !x @ (List.concat (List.rev !y)) in
+  let reorder x y = x @:= List.concat @@ List.rev !y in
   reorder targets targets_internal;
   reorder ocaml_libs ocaml_libs_internal;
   reorder ocaml_mods ocaml_mods_internal;
@@ -344,17 +347,18 @@ let init () =
   reorder show_tags show_tags_internal;
   reorder plugin_tags plugin_tags_internal;
 
+  (* Filter out non-existing directories *)
   let check_dir dir =
     if Filename.is_implicit dir then
       sys_file_exists dir
     else
-      failwith
-        (sprintf "Included or excluded directories must be implicit (not %S)" dir)
+      failwith @@
+        sprintf "Included or excluded directories must be implicit (not %S)" dir
   in
   let dir_reorder my dir =
     let d = !dir in
     reorder dir my;
-    dir := List.filter check_dir (!dir @ d)
+    dir := List.filter check_dir @@ !dir @ d
   in
   dir_reorder my_include_dirs include_dirs;
   dir_reorder my_exclude_dirs exclude_dirs;
